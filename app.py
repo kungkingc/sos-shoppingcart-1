@@ -33,7 +33,7 @@ db = SQLAlchemy(app)
 class Cart_table(db.Model):
     # -------------------------------------------------------------------------------------------
     __tablename__ = 'shopping_cart'
-    id = db.Column(db.Integer, primary_key=True)
+    cart_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     product_id = db.Column(db.Integer)
     quantity = db.Column(db.Integer)
