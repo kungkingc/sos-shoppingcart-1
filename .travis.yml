@@ -12,5 +12,5 @@ script:
 deploy:
   provider: heroku
   api_key:
-    secure: ""
+    secure: "8914777b-9c4b-4037-b10d-35e0322b8633"
   app: sos-shoppingcart
