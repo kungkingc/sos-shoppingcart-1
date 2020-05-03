@@ -37,11 +37,11 @@ class Cart_table(db.Model):
         
     def trans_serialize(self):
         return {
-            'cart_id': self.cart_id,
+            'cart_id': self.id,
             'user_id': self.user_id, 
             'product_id': self.product_id,
             'quantity': self.quantity,
-            'complete': self.complete
+            'complete": self.complete
         }
     def serialize(self):
         return {'user_id':self.user_id,'product_id':self.product_id,'quantity':self.quantity,'complete':self.complete}
@@ -53,7 +53,7 @@ class MyJSONEncoder(JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Cart_table):
             return {
-            'cart_id': obj.cart_id,
+            'cart_id': obj.id,
             'user_id': obj.user_id, 
             'product_id': obj.product_id,
             'quantity': obj.quantity,
@@ -67,21 +67,37 @@ def index():
 
 
 
-# Add product to cart
-@app.route('/api/v1/transactions', methods=['POST'])
+# Add product item/s to cart
+@app.route('/api/v1/add', methods=['POST'])
 def add_transaction():
     
     data = request.get_json()
-    
+    cart_id = data['id']
     user_id = data['user_id']
     product_id = data ['product_id']
     quantity = data['quantity']
     complete = False
     
-    data = Cart_table(user_id,product_id,quantity,complete)
+    data = Cart_table(cart_id,user_id,product_id,quantity,complete)
     db.session.add(data)
     db.session.commit()
     return "Item has been added to the cart"
+
+# Remove product item/s to cart
+@app.route('/api/v1/remoce', methods=['POST'])
+def remove_transaction():
+    
+    data = request.get_json()
+    cart_id = data['id']
+    user_id = data['user_id']
+    product_id = data ['product_id']
+    quantity = data['quantity']
+    complete = True
+    
+    data = Cart_table(cart_id,user_id,product_id,quantity,complete)
+    db.session.add(data)
+    db.session.commit()
+    return "Item has been removed from the cart"
     
         
 #<---- todo ------>
@@ -102,10 +118,10 @@ def checkout():
 def current_transaction(id):
     data = request.get_json()
     user_id = id
-    current_transactions = Cart_table.query.all()
+    #current_transactions = Cart_table.query.all()
     current_transaction = db.session.query(Cart_table).filter(Cart_table.user_id == 'user_id', Cart_table.complete.is_(False))
     print(current_transaction)
-    return jsonify(json_list=[i.trans_serialize for i in current_transactions])
+    return jsonify(json_list=[i.serialize for i in current_transactions])
 
         
 #show active transaction (send all transaction(complete = TRUE) of given id) return in JSON format
@@ -114,7 +130,7 @@ def history_transaction(id):
     data = request.get_json()
     user_id = id
     history_transaction = db.session.query(Cart_table).filter(Cart_table.user_id == 'user_id',Cart_table.complete.is_(True))
-    return jsonify(current=[e.trans_serialize() for e in history_transaction])
+    return jsonify(current=[e.serialize() for e in history_transaction])
 
 if __name__ == '__main__':
     app.run()
